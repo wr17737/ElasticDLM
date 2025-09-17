@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音频质量 AB Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        h1 {
+            color: #0056b3;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+            margin-bottom: 5px; /* 调整标题和ID之间的间距 */
+        }
+        h2 {
+            color: #0056b3;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+        #tester-id-display {
+            text-align: right;
+            color: #6c757d;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+        }
+        .emotion-section {
+            margin-top: 30px;
+        }
+        .test-case {
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .test-case p {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-top: 0;
+        }
+        .audio-players {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .audio-players div {
+            flex: 1;
+            min-width: 250px;
+        }
+        .audio-players audio {
+            width: 100%;
+        }
+        .options label {
+            margin-right: 15px;
+            cursor: pointer;
+        }
+        .submit-container {
+            text-align: center;
+            margin-top: 40px;
+        }
+        #submit-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #submit-btn:hover {
+            background-color: #0056b3;
+        }
+        .instructions {
+            background-color: #e9f7ff;
+            border-left: 5px solid #007bff;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>音频质量 AB Test</h1>
+    <div id="tester-id-display"></div> <!-- 新增：用于显示测试员ID -->
+
+    <div class="instructions">
+        <h3>测试说明</h3>
+        <p>请仔细聆听每组文本对应的 "音频1" 和 "音频2"，然后根据您的主观感受选择您认为情感表达效果更好的一个，或者选择“两者相似”。</p>
+        <p><strong>注意：</strong> "音频1" 和 "音频2" 的顺序是随机的，以确保测试的公平性。</p>
+    </div>
+
+    <form id="ab-test-form">
+        <div id="test-cases-container"></div>
+        <div class="submit-container">
+            <button type="submit" id="submit-btn">完成测试并下载结果</button>
+        </div>
+    </form>
+</div>
+
+<script>
+// --- 数据配置 ---
+const MODEL_A_NAME = 'test_init_doubao_epoch3';
+const MODEL_B_NAME = 'test_doubao_epoch3';
+
+const audioRawData = `
+Procurement_Premium_0320_doubao_00523.wav|xiyue|呵呵，我要把这个好消息告诉全世界！我太厉害啦！
+Procurement_Premium_0320_doubao_00522.wav|xiyue|啊呵呵！我要把这份快乐变成永恒！和你们在一起就是我最幸福的时刻！
+Procurement_Premium_0320_doubao_00534.wav|xiyue|哇哈哈！一刻都不想停，快分享更多好玩的呀！
+Procurement_Premium_0320_doubao_00515.wav|xiyue|哇塞！生活处处是惊喜呀！
+Procurement_Premium_0320_doubao_00516.wav|xiyue|嘿嘿，和你聊天超欢乐！
+Procurement_Premium_0317_doubao_00518.wav|beishang|曾经的憧憬都破碎了，只剩下无尽的失望，感觉生活没了盼头。
+Procurement_Premium_0317_doubao_00521.wav|beishang|我的心就像被掏空了一样，孤独和悲伤一直围绕着我。
+Procurement_Premium_0317_doubao_00522.wav|beishang|感觉自己一直在黑暗中徘徊，找不到出路，好迷茫好伤心。
+Procurement_Premium_0317_doubao_00512.wav|beishang|身边重要的人离开了，那种痛怎么也抹不掉，心里空了一块。
+Procurement_Premium_0317_doubao_00526.wav|beishang|日子太难熬，满心疲惫，真不知何时能轻松些。
+Procurement_Premium_0314_doubao_00009.wav|sajiao|人家好难过哦，你都不陪陪我，真的太过分了。
+Procurement_Premium_0314_doubao_00011.wav|sajiao|哼。我不理你啦！你都不哄哄人家，人家真的好难受嘛！
+Procurement_Premium_0314_doubao_00003.wav|sajiao|哼，你要是再不陪我玩，我就要闹小脾气喽。
+Procurement_Premium_0314_doubao_00005.wav|sajiao|哎呀宝宝人家真的有点害怕啦，你快抱抱我嘛！
+Procurement_Premium_0314_doubao_00006.wav|sajiao|宝宝，你能不能跟我说一下你的小秘密呀？
+Procurement_Premium_0319_doubao_00514.wav|kongju|我不想待在这儿了，到处都透着诡异，我快受不了啦！
+Procurement_Premium_0319_doubao_00529.wav|kongju|别再吓我了，我真的好害怕，我不想再这样了！
+Procurement_Premium_0319_doubao_00531.wav|kongju|我真的好后悔来到这个地方，早知道会这样，我打死也不会来。
+Procurement_Premium_0319_doubao_00520.wav|kongju|我受不了了，太恐怖了，谁来救救我！
+Procurement_Premium_0319_doubao_00516.wav|kongju|我不敢一个人待着，总觉得有东西跟着我，心里慌得不行。
+`;
+
+// --- 逻辑实现 ---
+
+document.addEventListener('DOMContentLoaded', () => {
+    // 新增：在页面加载时生成唯一的测试员ID
+    const testerId = `tester_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    document.getElementById('tester-id-display').textContent = `测试员ID: ${testerId}`;
+
+    const testCasesContainer = document.getElementById('test-cases-container');
+    const form = document.getElementById('ab-test-form');
+
+    // 1. 解析和分组数据
+    const audioData = audioRawData.trim().split('\n').map(line => {
+        const [filename, emotion, text] = line.split('|');
+        return { filename, emotion, text };
+    });
+
+    const groupedData = audioData.reduce((acc, item) => {
+        if (!acc[item.emotion]) {
+            acc[item.emotion] = [];
+        }
+        acc[item.emotion].push(item);
+        return acc;
+    }, {});
+    
+    const emotionOrder = ['xiyue', 'sajiao', 'beishang', 'kongju'];
+
+    // 2. 动态生成HTML内容
+    let caseIndex = 0;
+    emotionOrder.forEach(emotion => {
+        if (!groupedData[emotion]) return;
+
+        const section = document.createElement('div');
+        section.className = 'emotion-section';
+        
+        const title = document.createElement('h2');
+        title.textContent = `情感: ${emotion}`;
+        section.appendChild(title);
+
+        groupedData[emotion].forEach(item => {
+            const caseDiv = document.createElement('div');
+            caseDiv.className = 'test-case';
+            caseDiv.id = `case-${caseIndex}`;
+
+            const textP = document.createElement('p');
+            textP.textContent = item.text;
+            caseDiv.appendChild(textP);
+
+            const playersDiv = document.createElement('div');
+            playersDiv.className = 'audio-players';
+
+            const pathA = `${MODEL_A_NAME}/${item.emotion}/${item.filename}`;
+            const pathB = `${MODEL_B_NAME}/${item.emotion}/${item.filename}`;
+
+            const isRandomOrder = Math.random() > 0.5;
+            const src1 = isRandomOrder ? pathB : pathA;
+            const src2 = isRandomOrder ? pathA : pathB;
+            
+            caseDiv.dataset.modelForAudio1 = isRandomOrder ? MODEL_B_NAME : MODEL_A_NAME;
+            caseDiv.dataset.modelForAudio2 = isRandomOrder ? MODEL_A_NAME : MODEL_B_NAME;
+            caseDiv.dataset.filename = item.filename;
+            caseDiv.dataset.emotion = item.emotion;
+            caseDiv.dataset.text = item.text;
+
+            playersDiv.innerHTML = `
+                <div>
+                    <label>音频1:</label>
+                    <audio controls src="${src1}" preload="none"></audio>
+                </div>
+                <div>
+                    <label>音频2:</label>
+                    <audio controls src="${src2}" preload="none"></audio>
+                </div>
+            `;
+            caseDiv.appendChild(playersDiv);
+
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = 'options';
+            optionsDiv.innerHTML = `
+                <label><input type="radio" name="choice-${caseIndex}" value="Audio 1" required> 音频1更好</label>
+                <label><input type="radio" name="choice-${caseIndex}" value="Audio 2" required> 音频2更好</label>
+                <label><input type="radio" name="choice-${caseIndex}" value="Similar"> 两者相似</label>
+            `;
+            caseDiv.appendChild(optionsDiv);
+
+            section.appendChild(caseDiv);
+            testCasesContainer.appendChild(section);
+            caseIndex++;
+        });
+    });
+
+    // 3. 处理表单提交
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        const results = [];
+        const totalCases = caseIndex;
+
+        for (let i = 0; i < totalCases; i++) {
+            const caseDiv = document.getElementById(`case-${i}`);
+            const selectedRadio = form.querySelector(`input[name="choice-${i}"]:checked`);
+            
+            if (!selectedRadio) {
+                alert(`请完成所有测试项！第 ${i + 1} 项未选择。`);
+                caseDiv.style.borderColor = 'red';
+                caseDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+            caseDiv.style.borderColor = '#dee2e6';
+
+            const userChoice = selectedRadio.value;
+            let winner = 'Similar';
+            if (userChoice === 'Audio 1') {
+                winner = caseDiv.dataset.modelForAudio1;
+            } else if (userChoice === 'Audio 2') {
+                winner = caseDiv.dataset.modelForAudio2;
+            }
+
+            results.push({
+                id: i + 1,
+                filename: caseDiv.dataset.filename,
+                emotion: caseDiv.dataset.emotion,
+                text: caseDiv.dataset.text,
+                user_choice: userChoice,
+                winner: winner,
+                model_A_path: `${MODEL_A_NAME}/${caseDiv.dataset.emotion}/${caseDiv.dataset.filename}`,
+                model_B_path: `${MODEL_B_NAME}/${caseDiv.dataset.emotion}/${caseDiv.dataset.filename}`,
+                audio1_is: caseDiv.dataset.modelForAudio1,
+                audio2_is: caseDiv.dataset.modelForAudio2
+            });
+        }
+        
+        // 4. 生成并下载JSON文件
+        downloadJSON(results, testerId); // 修改：将testerId传入
+    });
+
+    function downloadJSON(results, currentTesterId) { // 修改：接收testerId
+        // 计算总结信息
+        const totalA = results.filter(res => res.winner === MODEL_A_NAME).length;
+        const totalB = results.filter(res => res.winner === MODEL_B_NAME).length;
+        const totalSimilar = results.filter(res => res.winner === 'Similar').length;
+
+        // 构建最终的JSON对象
+        const finalOutput = {
+            tester_id: currentTesterId, // 新增：在JSON中记录ID
+            summary: {
+                total_tests: results.length,
+                model_A_wins: totalA,
+                model_B_wins: totalB,
+                similar_count: totalSimilar,
+                model_A_name: MODEL_A_NAME,
+                model_B_name: MODEL_B_NAME
+            },
+            details: results
+        };
+
+        const jsonContent = JSON.stringify(finalOutput, null, 2); 
+        
+        const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        // 修改：文件名中包含ID
+        link.download = `ab_test_results_${currentTesterId}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        alert(`测试结果已成功导出为 ab_test_results_${currentTesterId}.json！`);
+    }
+});
+</script>
+
+</body>
+</html>
