@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>语音合成效果演示 (Speech Synthesis Demo)</title>
+    <title>LEARNING TO RESCALE: ON-THE-FLY SEQUENCE LENGTH ADAPTATION IN NON-AUTOREGRESSIVE SPEECH SYNTHESIS</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -27,12 +27,23 @@
             padding-bottom: 10px;
             margin-top: 40px;
         }
-        h3 {
-             text-align: center;
-             margin-top: 30px;
-        }
         h1 {
             margin-top: 0;
+            font-size: 2.2em;
+            line-height: 1.3;
+        }
+        h3 {
+            text-align: left;
+            margin-top: 40px;
+            margin-bottom: -10px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        .figure-caption {
+            text-align: justify;
+            margin-top: 20px;
+            padding: 0 20px;
+            color: #555;
         }
         table {
             width: 100%;
@@ -93,9 +104,39 @@
 <body>
 
     <div class="container">
-        <h1>语音合成效果演示 (Speech Synthesis Demo)</h1>
+        
+        <div style="text-align: center;">
+            <h1>LEARNING TO RESCALE: ON-THE-FLY SEQUENCE LENGTH ADAPTATION IN NON-AUTOREGRESSIVE SPEECH SYNTHESIS</h1>
+            <p style="font-size: 1.2em;">
+                <strong>Jiawei Jin<sup>1,∗</sup>, Ren Wang<sup>1,∗</sup>, Zhiyu Cui<sup>2</sup>, Shun Lei<sup>1</sup>, Yixuan Zhou<sup>1</sup>, Zhiyong Wu<sup>1,†</sup></strong>
+            </p>
+            <p>
+                <sup>1</sup>Shenzhen International Graduate School, Tsinghua University, China<br>
+                <sup>2</sup>Ant Group, China<br>
+                <small><sup>∗</sup>Equal contribution, <sup>†</sup>Corresponding author</small>
+            </p>
+        </div>
 
-        <h2>"Normal Len" Demos</h2>
+        <p style="text-align: justify; margin-top: 30px;">
+            <strong>Abstract:</strong> Non-autoregressive (NAR) text-to-speech (TTS) models have gained significant attention for their parallel inference and global style consistency. However, their reliance on accurate character-level or global duration predictions remains a critical bottleneck, limiting both synthesis fidelity and naturalness. In this paper, we propose ElasticDLM (Elastic-length Diffusion Language Model), a novel variable-length NAR TTS model that eliminates the strong dependency on accurate duration predictions. Specifically, we introduce two functional tokens, along with a Differentiated Length-Scaling Training Scheme (DLTS) and a Hierarchical Confidence-Guided Inference (HCGI) strategy tailored for speech characteristics, enabling the model to learn length-scaling features and automatically adjust sequence length during inference. Experiments show that ElasticDLM produces high-fidelity, natural speech from arbitrary-length inputs, demonstrating a more flexible and simplified approach to high-quality speech synthesis.
+        </p>
+
+        <h2>Model Architecture</h2>
+        <div style="text-align: center;">
+            <img src="figs/main_fig.png" alt="Model Architecture Diagram" style="max-width: 80%; border: 1px solid #ccc;">
+            <p><em>Fig. 1: An overview of our proposed model architecture.</em></p>
+        </div>
+
+        <h2>Main Results</h2>
+        <div style="text-align: center; margin-top: 20px;">
+            <img src="figs/main_results.png" alt="Main MOS scores and other metrics" style="max-width: 80%; border: 1px solid #ccc;">
+         <!-- <p><em>Fig. 2: Main experimental results</em></p> -->
+        </div>
+        <p class="figure-caption">
+            We conducted our evaluations on the seed-test-zh and seed-test-en benchmarks from Seed-TTS, using MaskGCT as our primary baseline. We designed three distinct settings for the MaskGCT baseline. The first, termed <strong>Normal</strong>, represents the standard MaskGCT which relies on its built-in duration model. The second, <strong>Fix</strong>, simulates a poor duration estimate by initializing the sequence to a fixed length (4s for Chinese, 4.5s for English). Finally, to serve as a performance upper bound, the <strong>GT</strong> setting provides MaskGCT with the ground-truth audio length.
+        </p>
+
+        <h3>Normal Len</h3>
         <table id="normal-len-table">
             <thead>
                 <tr>
@@ -186,7 +227,7 @@
             </tbody>
         </table>
 
-        <h2>"Fix Len" Demos</h2>
+        <h3>Fix Len</h3>
         <table id="fix-len-table">
             <thead>
                 <tr>
@@ -288,7 +329,15 @@
             </tbody>
         </table>
 
-        <h2>Different Initial Length Demos</h2>
+        <h2>Different Initial Length</h2>
+        <div style="text-align: center; margin-top: 20px;">
+            <img src="figs/initial_len_results.png" alt="Results with different initial lengths" style="max-width: 80%; border: 1px solid #ccc;">
+            <!-- <p><em>Fig. 3: Performance under different initial length conditions.</em></p> -->
+        </div>
+        <p class="figure-caption">
+            To validate the powerful length adaptation capability of our model, this section tests its speech generation performance under conditions of varying initial sequence lengths. This experiment demonstrates that the model does not rely on precise prior length information and can robustly generate high-quality target speech from varied initial states, highlighting its flexibility and robustness.
+        </p>
+
         <table id="initial-len-prompt-table">
              <tbody>
                   <tr style="border-bottom: 2px solid #eee;">
@@ -346,7 +395,15 @@
             </tbody>
         </table>
 
-        <h2>Single-Speaker Fine-Tune Demos</h2>
+        <h2>Analysis of Application Flexibility</h2>
+        <div style="text-align: center; margin-top: 20px;">
+            <img src="figs/finetuning_results.png" alt="Results of single-speaker fine-tuning" style="max-width: 80%; border: 1px solid #ccc;">
+            <p><em>Fig. 2: The AB Test on Highly Expressive Single-speaker Dataset.</em></p>
+        </div>
+        <p class="figure-caption">
+            To assess application flexibility, we fine-tuned our model and the MaskGCT baseline on a highly expressive single-speaker dataset. An AB preference test was then conducted, where participants evaluated speech synthesized from held-out texts in four emotional styles: Fearful, Sad, Coquettish, and Excited.
+        </p>
+
         <h3>Prompt Audio</h3>
         <table id="prompt-table">
              <tbody>
@@ -368,25 +425,25 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>Joy (喜悦)</td>
+                    <td>Excited (喜悦)</td>
                     <td>哇塞！生活处处是惊喜呀！</td>
                     <td><audio controls src="fine_tune/MaskGCT/xiyue/sample_0001.wav"></audio></td>
                     <td><audio controls src="fine_tune/Ours/xiyue/sample_0001.wav"></audio></td>
                 </tr>
                 <tr>
-                    <td>Joy (喜悦)</td>
+                    <td>Excited (喜悦)</td>
                     <td>嘿嘿，和你聊天超欢乐！</td>
                     <td><audio controls src="fine_tune/MaskGCT/xiyue/sample_0002.wav"></audio></td>
                     <td><audio controls src="fine_tune/Ours/xiyue/sample_0002.wav"></audio></td>
                 </tr>
                 <tr>
-                    <td>Sadness (悲伤)</td>
+                    <td>Sad (悲伤)</td>
                     <td>我的心就像被掏空了一样，孤独和悲伤一直围绕着我。</td>
                     <td><audio controls src="fine_tune/MaskGCT/beishang/sample_0001.wav"></audio></td>
                     <td><audio controls src="fine_tune/Ours/beishang/sample_0001.wav"></audio></td>
                 </tr>
                  <tr>
-                    <td>Sadness (悲伤)</td>
+                    <td>Sad (悲伤)</td>
                     <td>日子太难熬，满心疲惫，真不知何时能轻松些。</td>
                     <td><audio controls src="fine_tune/MaskGCT/beishang/sample_0002.wav"></audio></td>
                     <td><audio controls src="fine_tune/Ours/beishang/sample_0002.wav"></audio></td>
@@ -404,13 +461,13 @@
                     <td><audio controls src="fine_tune/Ours/sajiao/sample_0002.wav"></audio></td>
                 </tr>
                 <tr>
-                    <td>Fear (恐惧)</td>
+                    <td>Fearful (恐惧)</td>
                     <td>我不想待在这儿了，到处都透着诡异，我快受不了啦！</td>
                     <td><audio controls src="fine_tune/MaskGCT/kongju/sample_0001.wav"></audio></td>
                     <td><audio controls src="fine_tune/Ours/kongju/sample_0001.wav"></audio></td>
                 </tr>
                 <tr>
-                    <td>Fear (恐惧)</td>
+                    <td>Fearful (恐惧)</td>
                     <td>我真的好后悔来到这个地方，早知道会这样，我打死也不会来。</td>
                     <td><audio controls src="fine_tune/MaskGCT/kongju/sample_0002.wav"></audio></td>
                     <td><audio controls src="fine_tune/Ours/kongju/sample_0002.wav"></audio></td>
