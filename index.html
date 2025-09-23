@@ -3,104 +3,421 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>ICASSP 2026 语音合成演示页面</title>
-
+    <title>语音合成效果演示 (Speech Synthesis Demo)</title>
     <style>
-        /* 全局样式 */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
             margin: 0;
             padding: 20px;
-            background-color: #f4f4f4;
-            color: #333;
         }
-
-        /* 容器样式，让内容居中并设置最大宽度 */
         .container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
             background-color: #fff;
+            padding: 20px 40px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-
-        /* 标题样式 */
         h1, h2 {
-            color: #1a0dab;
-        }
-
-        h1 {
             text-align: center;
-            border-bottom: 2px solid #eaeaea;
+            border-bottom: 2px solid #eee;
             padding-bottom: 10px;
+            margin-top: 40px;
         }
-
-        /* 音频样本列表样式 */
-        .sample-list {
-            list-style-type: none;
-            padding: 0;
+        h3 {
+             text-align: center;
+             margin-top: 30px;
         }
-
-        .sample-list li {
-            background-color: #fafafa;
-            border: 1px solid #ddd;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 5px;
+        h1 {
+            margin-top: 0;
         }
-
-        /* 页脚样式 */
-        footer {
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border: none;
+        }
+        th, td {
+            padding: 15px 12px;
             text-align: center;
-            margin-top: 30px;
-            font-size: 0.9em;
-            color: #777;
+            vertical-align: middle;
+            border: none;
+        }
+        th {
+            background-color: #fff;
+            font-weight: bold;
+            border-bottom: 3px solid #333;
+        }
+        .group-header {
+            text-align: left;
+            font-size: 1.1em;
+            font-weight: bold;
+            background-color: #e9ecef;
+            color: #495057;
+            border-top: 2px solid #ddd;
+            border-bottom: 2px solid #ddd;
+        }
+        tbody td {
+             border-bottom: 2px solid #eee;
+        }
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+        /* Transcript column for the first two tables */
+        #normal-len-table td:first-child, #fix-len-table td:first-child {
+            text-align: center;
+            font-style: italic;
+            width: 30%;
+            color: #555;
+        }
+        /* Styling for the label-like columns in the last two tables */
+        #finetune-table td:first-child, #initial-len-table td:first-child { 
+            font-weight: bold;
+            width: 20%;
+        }
+        #finetune-table td:nth-child(2) { /* Transcript Column */
+            text-align: center;
+            font-style: italic;
+            width: 40%;
+            color: #555;
+        }
+        audio {
+            width: 100%;
+            min-width: 150px;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <header>
-            <h1>语音合成模型演示 (ICASSP 2026 Submission)</h1>
-        </header>
+        <h1>语音合成效果演示 (Speech Synthesis Demo)</h1>
 
-        <main>
-            <p>欢迎来到本演示页面。此页面用于展示我们为 ICASSP 2026 会议所提交论文中的语音合成模型所生成的一些音频样本。</p>
-            
-            <section>
-                <h2>音频样本 (Audio Samples)</h2>
-                <ul class="sample-list">
-                    <li>
-                        <strong>样本 1：</strong>常规新闻文本。<br>
-                        <em>(这里将来会放置一个 audio 播放器)</em>
-                    </li>
-                    <li>
-                        <strong>样本 2：</strong>包含英文和数字的混合文本。<br>
-                        <em>(这里将来会放置一个 audio 播放器)</em>
-                    </li>
-                    <li>
-                        <strong>样本 3：</strong>情绪丰富的长难句文本。<br>
-                        <em>(这里将来会放置一个 audio 播放器)</em>
-                    </li>
-                </ul>
-            </section>
+        <h2>"Normal Len" Demos</h2>
+        <table id="normal-len-table">
+            <thead>
+                <tr>
+                    <th>文本 (Transcript)</th>
+                    <th>Ground Truth</th>
+                    <th>MaskGCT (GT Len)</th>
+                    <th>MaskGCT (Normal Len)</th>
+                    <th>Ours (Normal Len)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="5" class="group-header">中文 (Chinese)</td>
+                </tr>
+                <tr>
+                    <td>这是专门为山地地区，作战研发的全新坦克。</td>
+                    <td><audio controls src="normal_len/zh/ground_truth/sample_0001.wav"></audio></td>
+                    <td><audio controls src="normal_len/zh/init_gt_len/sample_0001.wav"></audio></td>
+                    <td><audio controls src="normal_len/zh/init_normal_len/sample_0001.wav"></audio></td>
+                    <td><audio controls src="normal_len/zh/ours_normal_len/sample_0001.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td>而且全球百分之二十的，新发癌症病人在中国。</td>
+                    <td><audio controls src="normal_len/zh/ground_truth/sample_0002.wav"></audio></td>
+                    <td><audio controls src="normal_len/zh/init_gt_len/sample_0002.wav"></audio></td>
+                    <td><audio controls src="normal_len/zh/init_normal_len/sample_0002.wav"></audio></td>
+                    <td><audio controls src="normal_len/zh/ours_normal_len/sample_0002.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td>他们宁愿躺在家里睡上半年，也不肯麻烦一点到南方去。</td>
+                    <td><audio controls src="normal_len/zh/ground_truth/sample_0003.wav"></audio></td>
+                    <td><audio controls src="normal_len/zh/init_gt_len/sample_0003.wav"></audio></td>
+                    <td><audio controls src="normal_len/zh/init_normal_len/sample_0003.wav"></audio></td>
+                    <td><audio controls src="normal_len/zh/ours_normal_len/sample_0003.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td>标题为中国如此害怕印度的五大理由。</td>
+                    <td><audio controls src="normal_len/zh/ground_truth/sample_0004.wav"></audio></td>
+                    <td><audio controls src="normal_len/zh/init_gt_len/sample_0004.wav"></audio></td>
+                    <td><audio controls src="normal_len/zh/init_normal_len/sample_0004.wav"></audio></td>
+                    <td><audio controls src="normal_len/zh/ours_normal_len/sample_0004.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td>上下班耗费的时间，影响着人们对工作的满意度。</td>
+                    <td><audio controls src="normal_len/zh/ground_truth/sample_0005.wav"></audio></td>
+                    <td><audio controls src="normal_len/zh/init_gt_len/sample_0005.wav"></audio></td>
+                    <td><audio controls src="normal_len/zh/init_normal_len/sample_0005.wav"></audio></td>
+                    <td><audio controls src="normal_len/zh/ours_normal_len/sample_0005.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td colspan="5" class="group-header">英文 (English)</td>
+                </tr>
+                <tr>
+                    <td>He lives in a tent, smokes a pipe and plays the harmonica.</td>
+                    <td><audio controls src="normal_len/en/ground_truth/sample_0001.wav"></audio></td>
+                    <td><audio controls src="normal_len/en/init_gt_len/sample_0001.wav"></audio></td>
+                    <td><audio controls src="normal_len/en/init_normal_len/sample_0001.wav"></audio></td>
+                    <td><audio controls src="normal_len/en/ours_normal_len/sample_0001.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td>It was the first time either had touched the other.</td>
+                    <td><audio controls src="normal_len/en/ground_truth/sample_0002.wav"></audio></td>
+                    <td><audio controls src="normal_len/en/init_gt_len/sample_0002.wav"></audio></td>
+                    <td><audio controls src="normal_len/en/init_normal_len/sample_0002.wav"></audio></td>
+                    <td><audio controls src="normal_len/en/ours_normal_len/sample_0002.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td>There is no universal definition of intelligence, but everyone agrees that the ability of learning belongs to it.</td>
+                    <td><audio controls src="normal_len/en/ground_truth/sample_0003.wav"></audio></td>
+                    <td><audio controls src="normal_len/en/init_gt_len/sample_0003.wav"></audio></td>
+                    <td><audio controls src="normal_len/en/init_normal_len/sample_0003.wav"></audio></td>
+                    <td><audio controls src="normal_len/en/ours_normal_len/sample_0003.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td>With his promotion to colonel, he was named director of personnel.</td>
+                    <td><audio controls src="normal_len/en/ground_truth/sample_0004.wav"></audio></td>
+                    <td><audio controls src="normal_len/en/init_gt_len/sample_0004.wav"></audio></td>
+                    <td><audio controls src="normal_len/en/init_normal_len/sample_0004.wav"></audio></td>
+                    <td><audio controls src="normal_len/en/ours_normal_len/sample_0004.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td>He also regularly attends events with the Royal Family.</td>
+                    <td><audio controls src="normal_len/en/ground_truth/sample_0005.wav"></audio></td>
+                    <td><audio controls src="normal_len/en/init_gt_len/sample_0005.wav"></audio></td>
+                    <td><audio controls src="normal_len/en/init_normal_len/sample_0005.wav"></audio></td>
+                    <td><audio controls src="normal_len/en/ours_normal_len/sample_0005.wav"></audio></td>
+                </tr>
+            </tbody>
+        </table>
 
-            <section>
-                <h2>作者信息</h2>
-                <p>
-                    <strong>作者:</strong> [请在这里填上您的姓名] <br>
-                    <strong>单位:</strong> 清华大学深圳国际研究生院 (Tsinghua Shenzhen International Graduate School, Tsinghua University)
-                </p>
-            </section>
-        </main>
+        <h2>"Fix Len" Demos</h2>
+        <table id="fix-len-table">
+            <thead>
+                <tr>
+                    <th>文本 (Transcript)</th>
+                    <th>Ground Truth</th>
+                    <th>MaskGCT (Fix Len)</th>
+                    <th>Ours (Fix Len)</th>
+                    <th>Ours (w/o Len Loss)</th>
+                    <th>Ours (w/o Inference)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="6" class="group-header">中文 (Chinese)</td>
+                </tr>
+                <tr>
+                    <td>大象卷住你妈，使劲一甩，你妈妈扑通一声被甩进了河里。</td>
+                    <td><audio controls src="fix_len/zh/ground_truth/sample_0001.wav"></audio></td>
+                    <td><audio controls src="fix_len/zh/init_fix_len/sample_0001.wav"></audio></td>
+                    <td><audio controls src="fix_len/zh/ours_fix_len/sample_0001.wav"></audio></td>
+                    <td><audio controls src="fix_len/zh/ours_wo_len_loss/sample_0001.wav"></audio></td>
+                    <td><audio controls src="fix_len/zh/ours_wo_inference/sample_0001.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td>榜单前五位分别为阿里巴巴，海尔集团，百度，华为和联想。</td>
+                    <td><audio controls src="fix_len/zh/ground_truth/sample_0002.wav"></audio></td>
+                    <td><audio controls src="fix_len/zh/init_fix_len/sample_0002.wav"></audio></td>
+                    <td><audio controls src="fix_len/zh/ours_fix_len/sample_0002.wav"></audio></td>
+                    <td><audio controls src="fix_len/zh/ours_wo_len_loss/sample_0002.wav"></audio></td>
+                    <td><audio controls src="fix_len/zh/ours_wo_inference/sample_0002.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td>他不得不骑在马上颠簸赶路，而不能够躺在床上安详熟睡。</td>
+                    <td><audio controls src="fix_len/zh/ground_truth/sample_0003.wav"></audio></td>
+                    <td><audio controls src="fix_len/zh/init_fix_len/sample_0003.wav"></audio></td>
+                    <td><audio controls src="fix_len/zh/ours_fix_len/sample_0003.wav"></audio></td>
+                    <td><audio controls src="fix_len/zh/ours_wo_len_loss/sample_0003.wav"></audio></td>
+                    <td><audio controls src="fix_len/zh/ours_wo_inference/sample_0003.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td>兔妈妈胀麻的身子一下子被抽空，久违的轻松回来了。</td>
+                    <td><audio controls src="fix_len/zh/ground_truth/sample_0004.wav"></audio></td>
+                    <td><audio controls src="fix_len/zh/init_fix_len/sample_0004.wav"></audio></td>
+                    <td><audio controls src="fix_len/zh/ours_fix_len/sample_0004.wav"></audio></td>
+                    <td><audio controls src="fix_len/zh/ours_wo_len_loss/sample_0004.wav"></audio></td>
+                    <td><audio controls src="fix_len/zh/ours_wo_inference/sample_0004.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td>其中又有大部分百分之四十一点九认为，由该品牌影楼拍摄。</td>
+                    <td><audio controls src="fix_len/zh/ground_truth/sample_0005.wav"></audio></td>
+                    <td><audio controls src="fix_len/zh/init_fix_len/sample_0005.wav"></audio></td>
+                    <td><audio controls src="fix_len/zh/ours_fix_len/sample_0005.wav"></audio></td>
+                    <td><audio controls src="fix_len/zh/ours_wo_len_loss/sample_0005.wav"></audio></td>
+                    <td><audio controls src="fix_len/zh/ours_wo_inference/sample_0005.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td colspan="6" class="group-header">英文 (English)</td>
+                </tr>
+                <tr>
+                    <td>Will you be happy when I am in the earth?</td>
+                    <td><audio controls src="fix_len/en/ground_truth/sample_0001.wav"></audio></td>
+                    <td><audio controls src="fix_len/en/init_fix_len/sample_0001.wav"></audio></td>
+                    <td><audio controls src="fix_len/en/ours_fix_len/sample_0001.wav"></audio></td>
+                    <td><audio controls src="fix_len/en/ours_wo_len_loss/sample_0001.wav"></audio></td>
+                    <td><audio controls src="fix_len/en/ours_wo_inference/sample_0001.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td>Smith was a fellow of the British Academy.</td>
+                    <td><audio controls src="fix_len/en/ground_truth/sample_0002.wav"></audio></td>
+                    <td><audio controls src="fix_len/en/init_fix_len/sample_0002.wav"></audio></td>
+                    <td><audio controls src="fix_len/en/ours_fix_len/sample_0002.wav"></audio></td>
+                    <td><audio controls src="fix_len/en/ours_wo_len_loss/sample_0002.wav"></audio></td>
+                    <td><audio controls src="fix_len/en/ours_wo_inference/sample_0002.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td>He was educated at Wellington College, Berkshire.</td>
+                    <td><audio controls src="fix_len/en/ground_truth/sample_0003.wav"></audio></td>
+                    <td><audio controls src="fix_len/en/init_fix_len/sample_0003.wav"></audio></td>
+                    <td><audio controls src="fix_len/en/ours_fix_len/sample_0003.wav"></audio></td>
+                    <td><audio controls src="fix_len/en/ours_wo_len_loss/sample_0003.wav"></audio></td>
+                    <td><audio controls src="fix_len/en/ours_wo_inference/sample_0003.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td>Do the roses compete in athletic events?</td>
+                    <td><audio controls src="fix_len/en/ground_truth/sample_0004.wav"></audio></td>
+                    <td><audio controls src="fix_len/en/init_fix_len/sample_0004.wav"></audio></td>
+                    <td><audio controls src="fix_len/en/ours_fix_len/sample_0004.wav"></audio></td>
+                    <td><audio controls src="fix_len/en/ours_wo_len_loss/sample_0004.wav"></audio></td>
+                    <td><audio controls src="fix_len/en/ours_wo_inference/sample_0004.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td>The four group winners had the opportunity to promote directly.</td>
+                    <td><audio controls src="fix_len/en/ground_truth/sample_0005.wav"></audio></td>
+                    <td><audio controls src="fix_len/en/init_fix_len/sample_0005.wav"></audio></td>
+                    <td><audio controls src="fix_len/en/ours_fix_len/sample_0005.wav"></audio></td>
+                    <td><audio controls src="fix_len/en/ours_wo_len_loss/sample_0005.wav"></audio></td>
+                    <td><audio controls src="fix_len/en/ours_wo_inference/sample_0005.wav"></audio></td>
+                </tr>
+            </tbody>
+        </table>
 
-        <footer>
-            <p>&copy; 2025 [您的姓名]. All Rights Reserved.</p>
-        </footer>
+        <h2>Different Initial Length Demos</h2>
+        <table id="initial-len-prompt-table">
+             <tbody>
+                  <tr style="border-bottom: 2px solid #eee;">
+                       <td style="width: 20%; font-weight: bold; text-align: center;">Prompt Audio</td>
+                       <td style="width: 50%; text-align: center; font-style: italic;">鞋子和鞋垫可以使用抑菌喷剂，或散剂进行消毒。</td>
+                       <td style="width: 30%;"><audio controls src="different_initial_len/prompt.wav" style="width:100%"></audio></td>
+                  </tr>
+                  <tr>
+                       <td style="width: 20%; font-weight: bold; text-align: center;">Target Audio (GT)</td>
+                       <td style="width: 50%; text-align: center; font-style: italic;">并采取实际行动，去培训快递员这方面的法律意识。</td>
+                       <td style="width: 30%;"><audio controls src="different_initial_len/ground_truth.wav" style="width:100%"></audio></td>
+                  </tr>
+             </tbody>
+        </table>
+        
+        <table id="initial-len-table">
+            <thead>
+                <tr>
+                    <th>Initial Length</th>
+                    <th>MaskGCT</th>
+                    <th>Ours</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1s</td>
+                    <td><audio controls src="different_initial_len/MaskGCT/1s/sample_0001.wav"></audio></td>
+                    <td><audio controls src="different_initial_len/Ours/1s/sample_0001.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td>4s</td>
+                    <td><audio controls src="different_initial_len/MaskGCT/4s/sample_0001.wav"></audio></td>
+                    <td><audio controls src="different_initial_len/Ours/4s/sample_0001.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td>7s</td>
+                    <td><audio controls src="different_initial_len/MaskGCT/7s/sample_0001.wav"></audio></td>
+                    <td><audio controls src="different_initial_len/Ours/7s/sample_0001.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td>10s</td>
+                    <td><audio controls src="different_initial_len/MaskGCT/10s/sample_0001.wav"></audio></td>
+                    <td><audio controls src="different_initial_len/Ours/10s/sample_0001.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td>13s</td>
+                    <td><audio controls src="different_initial_len/MaskGCT/13s/sample_0001.wav"></audio></td>
+                    <td><audio controls src="different_initial_len/Ours/13s/sample_0001.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td>16s</td>
+                    <td><audio controls src="different_initial_len/MaskGCT/16s/sample_0001.wav"></audio></td>
+                    <td><audio controls src="different_initial_len/Ours/16s/sample_0001.wav"></audio></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Single-Speaker Fine-Tune Demos</h2>
+        <h3>Prompt Audio</h3>
+        <table id="prompt-table">
+             <tbody>
+                  <tr>
+                       <td style="width: 70%; text-align: center; font-style: italic;">每个人的生活节奏都不一样，你也不必太在意别人的眼光啊。</td>
+                       <td style="width: 30%;"><audio controls src="fine_tune/prompt.wav" style="width:100%"></audio></td>
+                  </tr>
+             </tbody>
+        </table>
+        
+        <table id="finetune-table">
+            <thead>
+                <tr>
+                    <th>Emotion</th>
+                    <th>Transcript</th>
+                    <th>MaskGCT</th>
+                    <th>Ours</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Joy (喜悦)</td>
+                    <td>哇塞！生活处处是惊喜呀！</td>
+                    <td><audio controls src="fine_tune/MaskGCT/xiyue/sample_0001.wav"></audio></td>
+                    <td><audio controls src="fine_tune/Ours/xiyue/sample_0001.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td>Joy (喜悦)</td>
+                    <td>嘿嘿，和你聊天超欢乐！</td>
+                    <td><audio controls src="fine_tune/MaskGCT/xiyue/sample_0002.wav"></audio></td>
+                    <td><audio controls src="fine_tune/Ours/xiyue/sample_0002.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td>Sadness (悲伤)</td>
+                    <td>我的心就像被掏空了一样，孤独和悲伤一直围绕着我。</td>
+                    <td><audio controls src="fine_tune/MaskGCT/beishang/sample_0001.wav"></audio></td>
+                    <td><audio controls src="fine_tune/Ours/beishang/sample_0001.wav"></audio></td>
+                </tr>
+                 <tr>
+                    <td>Sadness (悲伤)</td>
+                    <td>日子太难熬，满心疲惫，真不知何时能轻松些。</td>
+                    <td><audio controls src="fine_tune/MaskGCT/beishang/sample_0002.wav"></audio></td>
+                    <td><audio controls src="fine_tune/Ours/beishang/sample_0002.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td>Coquettish (撒娇)</td>
+                    <td>人家好难过哦，你都不陪陪我，真的太过分了。</td>
+                    <td><audio controls src="fine_tune/MaskGCT/sajiao/sample_0001.wav"></audio></td>
+                    <td><audio controls src="fine_tune/Ours/sajiao/sample_0001.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td>Coquettish (撒娇)</td>
+                    <td>哼，你要是再不陪我玩，我就要闹小脾气喽。</td>
+                    <td><audio controls src="fine_tune/MaskGCT/sajiao/sample_0002.wav"></audio></td>
+                    <td><audio controls src="fine_tune/Ours/sajiao/sample_0002.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td>Fear (恐惧)</td>
+                    <td>我不想待在这儿了，到处都透着诡异，我快受不了啦！</td>
+                    <td><audio controls src="fine_tune/MaskGCT/kongju/sample_0001.wav"></audio></td>
+                    <td><audio controls src="fine_tune/Ours/kongju/sample_0001.wav"></audio></td>
+                </tr>
+                <tr>
+                    <td>Fear (恐惧)</td>
+                    <td>我真的好后悔来到这个地方，早知道会这样，我打死也不会来。</td>
+                    <td><audio controls src="fine_tune/MaskGCT/kongju/sample_0002.wav"></audio></td>
+                    <td><audio controls src="fine_tune/Ours/kongju/sample_0002.wav"></audio></td>
+                </tr>
+            </tbody>
+        </table>
+
     </div>
 
 </body>

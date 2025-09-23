@@ -1,0 +1,5 @@
+sample_0001.wav	Will you be happy when I am in the earth?
+sample_0002.wav	Smith was a fellow of the British Academy.
+sample_0003.wav	He was educated at Wellington College, Berkshire.
+sample_0004.wav	Do the roses compete in athletic events?
+sample_0005.wav	The four group winners had the opportunity to promote directly.

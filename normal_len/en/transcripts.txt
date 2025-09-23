@@ -1,0 +1,5 @@
+sample_0001.wav	He lives in a tent, smokes a pipe and plays the harmonica.
+sample_0002.wav	It was the first time either had touched the other.
+sample_0003.wav	There is no universal definition of intelligence, but everyone agrees that the ability of learning belongs to it.
+sample_0004.wav	With his promotion to colonel, he was named director of personnel.
+sample_0005.wav	He also regularly attends events with the Royal Family.
